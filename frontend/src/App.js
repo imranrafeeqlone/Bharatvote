@@ -355,7 +355,7 @@ function OtpFlow({onVerified}){
     if(!validEmail){setErr("Please enter a valid email address.");return;}
     setLoading(true);
 
-    const url = `${API_BASE}/send-otp`;
+    const url = `${API_BASE}/api/send-otp`;
     const payload = { email: emailValue };
     console.debug('OTP send request', { url, payload, origin: window.location.origin });
 
@@ -437,7 +437,7 @@ function OtpFlow({onVerified}){
     if(!validEmail){setErr("Please enter a valid email address to resend OTP.");return;}
     setLoading(true);
 
-    const url = `${API_BASE}/send-otp`;
+    const url = `${API_BASE}/api/send-otp`;
     const payload = { email: emailValue };
     console.debug('OTP resend request', { url, payload, origin: window.location.origin });
 
