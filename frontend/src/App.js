@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import IMG_TMC from './assets/tmc.png';
 const API_BASE = window.location.protocol === 'file:' ? 'https://bharatvote-gs4c.onrender.com' : '/api';
 
