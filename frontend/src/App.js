@@ -316,6 +316,19 @@ function useCountdown(t){
   return{h:Math.floor(d/3600000),m:Math.floor((d%3600000)/60000),s:Math.floor((d%60000)/1000),done:d===0};
 }
 
+async function parseJson(res){
+  const contentType = res.headers.get('content-type') || '';
+  if(contentType.includes('application/json')){
+    return res.json();
+  }
+  const text = await res.text();
+  try{
+    return text ? JSON.parse(text) : null;
+  }catch{
+    return null;
+  }
+}
+
 /* ─── TOAST ──────────────────────────────────────────────────────────────── */
 function Toast({msg,type,onClose}){
   useEffect(()=>{const t=setTimeout(onClose,3200);return()=>clearTimeout(t)},[onClose]);
@@ -365,8 +378,7 @@ function OtpFlow({onVerified}){
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify(payload)
       });
-      const text = await res.text();
-      const data = text ? JSON.parse(text) : {};
+      const data = await parseJson(res) ?? {};
       if(!res.ok){
         if(res.status===409){
           alert('⚠️ You have already voted!');
@@ -401,8 +413,7 @@ function OtpFlow({onVerified}){
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify(payload)
       });
-      const text = await res.text();
-      const data = text ? JSON.parse(text) : {};
+      const data = await parseJson(res) ?? {};
       if(!res.ok){
         if(res.status===409){
           alert('⚠️ You have already voted!');
@@ -447,8 +458,7 @@ function OtpFlow({onVerified}){
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify(payload)
       });
-      const text = await res.text();
-      const data = text ? JSON.parse(text) : {};
+      const data = await parseJson(res) ?? {};
       if(!res.ok){
         if(res.status===409){
           alert('⚠️ You have already voted!');
@@ -535,7 +545,7 @@ function VotePage({email,otp,votes,onVote,votedFor}){
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({ email, otp, party_id: sel })
       });
-      const data = await res.json();
+      const data = await parseJson(res) ?? {};
       if(!res.ok){
         throw new Error(data.error || `Vote failed (status ${res.status}).`);
       }
@@ -826,8 +836,8 @@ export default function App(){
   const refreshVotes = useCallback(async ()=>{
     try{
       const res = await fetch(`${API_BASE}/results`);
+      const data = await parseJson(res) ?? [];
       if(!res.ok) throw new Error('Failed to load results');
-      const data = await res.json();
       const byId = data.reduce((acc,row)=>({ ...acc, [row.id]: row.vote_count }), {});
       setVotes(v=>({ ...INIT_VOTES, ...byId }));
     }catch(e){

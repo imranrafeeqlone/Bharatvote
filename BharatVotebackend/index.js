@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const otpRoutes = require('./routes/otp');
@@ -15,19 +14,23 @@ app.use(cors({
 
 app.use(express.json());
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  message: { error: 'Too many requests. Try again later.' }
-});
-
-app.use('/api', limiter);
-
 app.use('/api', otpRoutes);
 app.use('/api', voteRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not found' });
+});
+
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  if (res.headersSent) {
+    return next(err);
+  }
+  res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
 });
 
 app.listen(process.env.PORT || 4000, () => {
