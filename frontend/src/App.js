@@ -307,6 +307,7 @@ const PARTIES = [
 const INIT_VOTES = {1:0,2:0,3:0,4:0,5:0};
 const ENDS = new Date(Date.now()+86400000*1.2);
 const RESULTS_AT = new Date(Date.now()+86400000*2);
+const ADMIN_PASSWORD = "Mca@2024";
 
 /* ─── HELPERS ────────────────────────────────────────────────────────────── */
 function pad(n){return String(n).padStart(2,"0")}
@@ -708,15 +709,24 @@ function ResultsPage({votes,unlocked}){
 function AdminPage({votes,unlocked,setUnlocked,onSim}){
   const [pass,setPass]=useState("");
   const [in_,setIn]=useState(false);
+  const [err,setErr]=useState("");
   const [vOpen,setVOpen]=useState(true);
   const total=Object.values(votes).reduce((a,b)=>a+b,0);
+  const handleEnter = () => {
+    if(pass === ADMIN_PASSWORD){
+      setIn(true);
+      setErr("");
+      return;
+    }
+    setErr("Incorrect admin password.");
+  };
   if(!in_)return(
     <div className="otp-wrap">
       <div className="otp-title">Admin Panel</div>
       <div className="otp-sub">Enter the admin password to access election controls.</div>
-      <div className="fl"><label>Password</label><input className="fi" type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="admin password"/></div>
-      <button className="btn btn-s btn-lg btn-w" onClick={()=>pass.length>0&&setIn(true)}>→ Enter</button>
-      <div className="info-box" style={{marginTop:14,marginBottom:0}}><span>🔒</span><span>Demo: any password works.</span></div>
+      <div className="fl"><label>Password</label><input className="fi" type="password" value={pass} onChange={e=>{setPass(e.target.value);setErr("")}} placeholder="admin password" onKeyDown={e=>e.key==="Enter"&&handleEnter()}/></div>
+      {err&&<div className="err-box">⚠ {err}</div>}
+      <button className="btn btn-s btn-lg btn-w" onClick={handleEnter}>→ Enter</button>
     </div>
   );
   return(
